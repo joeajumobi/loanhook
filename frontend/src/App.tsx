@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LandingPage } from "./components/LandingPage";
 import { LoginScreen } from "./components/LoginScreen";
 import { SignupScreen } from "./components/SignupScreen";
 import { OnboardingScreen } from "./components/OnboardingScreen";
@@ -8,11 +9,11 @@ import { ImprovementPlanScreen } from "./components/ImprovementPlanScreen";
 import { ScenarioSimulatorScreen } from "./components/ScenarioSimulatorScreen";
 import { BankReadyProfileScreen } from "./components/BankReadyProfileScreen";
 import { BottomNavigation } from "./components/BottomNavigation";
+import { SideNavigation } from "./components/SideNavigation";
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authScreen, setAuthScreen] = useState<"login" | "signup">("login");
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [authScreen, setAuthScreen] = useState<"landing" | "login" | "signup">("landing");
   const [activeScreen, setActiveScreen] = useState("dashboard");
 
   const handleLogin = () => {
@@ -23,17 +24,25 @@ export default function App() {
     setIsAuthenticated(true);
   };
 
-  const handleCompleteOnboarding = () => {
-    setHasCompletedOnboarding(true);
+  const handleGetStarted = () => {
+    setAuthScreen("login");
   };
 
   const handleNavigate = (screen: string) => {
     setActiveScreen(screen);
   };
 
-  // Show login/signup if not authenticated
+  // Show landing/login/signup if not authenticated
   if (!isAuthenticated) {
-    if (authScreen === "login") {
+    if (authScreen === "landing") {
+      return (
+        <LandingPage
+          onGetStarted={handleGetStarted}
+          onNavigateToLogin={() => setAuthScreen("login")}
+          onNavigateToSignup={() => setAuthScreen("signup")}
+        />
+      );
+    } else if (authScreen === "login") {
       return (
         <LoginScreen
           onLogin={handleLogin}
@@ -50,21 +59,25 @@ export default function App() {
     }
   }
 
-  if (!hasCompletedOnboarding) {
-    return <OnboardingScreen onComplete={handleCompleteOnboarding} />;
-  }
-
+  // Show main app
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center">
-      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-        {activeScreen === "dashboard" && <DashboardScreen onNavigate={handleNavigate} />}
-        {activeScreen === "readiness" && <LoanReadinessScreen onNavigate={handleNavigate} />}
-        {activeScreen === "improvement" && <ImprovementPlanScreen onNavigate={handleNavigate} />}
-        {activeScreen === "simulator" && <ScenarioSimulatorScreen onNavigate={handleNavigate} />}
-        {activeScreen === "profile" && <BankReadyProfileScreen onNavigate={handleNavigate} />}
-        
-        <BottomNavigation activeScreen={activeScreen} onNavigate={handleNavigate} />
+    <div className="min-h-screen bg-gray-50">
+      {/* Side Navigation for Desktop/Tablet */}
+      <SideNavigation activeScreen={activeScreen} onNavigate={handleNavigate} />
+      
+      {/* Main Content */}
+      <div className="md:ml-64">
+        <div className="max-w-md md:max-w-none mx-auto relative">
+          {activeScreen === "dashboard" && <DashboardScreen onNavigate={handleNavigate} />}
+          {activeScreen === "readiness" && <LoanReadinessScreen onNavigate={handleNavigate} />}
+          {activeScreen === "improvement" && <ImprovementPlanScreen onNavigate={handleNavigate} />}
+          {activeScreen === "simulator" && <ScenarioSimulatorScreen onNavigate={handleNavigate} />}
+          {activeScreen === "profile" && <BankReadyProfileScreen onNavigate={handleNavigate} />}
+        </div>
       </div>
+      
+      {/* Bottom Navigation for Mobile Only */}
+      <BottomNavigation activeScreen={activeScreen} onNavigate={handleNavigate} />
     </div>
   );
 }
