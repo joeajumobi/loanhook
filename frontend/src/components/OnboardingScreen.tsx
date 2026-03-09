@@ -113,7 +113,7 @@ export function OnboardingScreen({ onComplete, onNavigateToLogin, onNavigateToSi
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl text-gray-900">BorrowSmart</span>
+              <span className="text-xl text-gray-900">LoanHook</span>
             </div>
 
             {/* Desktop Navigation Links */}

@@ -121,7 +121,7 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-gray-900">BorrowSmart</span>
+              <span className="text-xl font-semibold text-gray-900">LoanHook</span>
             </div>
 
             {/* Desktop Navigation Links */}
@@ -271,7 +271,7 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
-              How BorrowSmart Works
+              How LoanHook Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Three simple steps to understand your borrowing power

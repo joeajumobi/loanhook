@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { DollarSign, TrendingUp, TrendingDown, CreditCard, PiggyBank, AlertCircle } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
@@ -5,27 +6,87 @@ interface DashboardScreenProps {
   onNavigate: (screen: string) => void;
 }
 
+interface Applicant {
+  applicantID: number;
+  name: string;
+  income: number;
+  savings: number;
+  housing: number;
+  food: number;
+  transport: number;
+  utilities: number;
+  other: number;
+  debt: number;
+}
+
 export function DashboardScreen({ onNavigate }: DashboardScreenProps) {
+  const [applicant, setApplicant] = useState<Applicant | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() =>{
+    const fetchApplicant = async () =>{
+      try{
+        const response = await fetch("http://localhost:3000/applicants?count=1");
+        const data = await response.json();
+        setApplicant(data[0]);
+      } catch (error) {
+        console.error("Error fetching applicant data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApplicant();
+  }, []);
+
+  if (loading) {
+    return <div className="p-6">Loading dashboard...</div>;
+  }
+
+  if (!applicant) {
+    return <div className="p-6">No applicant data available.</div>;
+  }
+
+  const monthlyExpenses = 
+  applicant.housing +
+  applicant.food +
+  applicant.transport +
+  applicant.utilities + 
+  applicant.other;
+
+  const readinessScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        50 +
+        applicant.savings / 200 - 
+        applicant.debt / 500 -
+        monthlyExpenses / 1000
+
+      )
+    )
+  );
   const financialData = {
-    monthlyIncome: 4500,
-    monthlyExpenses: 3200,
-    savings: 8500,
-    debt: 2800,
-    readinessScore: 72
+    monthlyIncome: applicant.income,
+    monthlyExpenses,
+    savings: applicant.savings,
+    debt: applicant.debt,
+    readinessScore
   };
 
   const expenseData = [
-    { name: "Housing", value: 1200, color: "#3b82f6" },
-    { name: "Food", value: 600, color: "#14b8a6" },
-    { name: "Transport", value: 400, color: "#8b5cf6" },
-    { name: "Utilities", value: 300, color: "#f59e0b" },
-    { name: "Other", value: 700, color: "#6366f1" },
+    { name: "Housing", value: applicant.housing, color: "#3b82f6" },
+    { name: "Food", value: applicant.food, color: "#14b8a6" },
+    { name: "Transport", value: applicant.transport, color: "#8b5cf6" },
+    { name: "Utilities", value: applicant.utilities, color: "#f59e0b" },
+    { name: "Other", value: applicant.other, color: "#6366f1" },
   ];
 
   const monthlyTrend = [
-    { month: "Jan", income: 4200, expenses: 3100 },
-    { month: "Feb", income: 4300, expenses: 3300 },
-    { month: "Mar", income: 4500, expenses: 3200 },
+    { month: "Jan", income: Math.round(applicant.income * 0.9), expenses: Math.round(monthlyExpenses * 0.95) },
+    { month: "Feb", income: Math.round(applicant.income * 0.95), expenses: Math.round(applicant.income * 1.05) },
+    { month: "Mar", income: applicant.income, expenses: monthlyExpenses },
   ];
 
   const getScoreColor = (score: number) => {
@@ -69,7 +130,13 @@ export function DashboardScreen({ onNavigate }: DashboardScreenProps) {
               </div>
             </div>
             <div className="flex-1">
-              <p className={`text-lg mb-1 font-bold ${getScoreColor(financialData.readinessScore)}`}>Good Position</p>
+              <p className={`text-lg mb-1 font-bold ${getScoreColor(financialData.readinessScore)}`}>
+                {financialData.readinessScore >= 70
+                  ? "Good Position"
+                  : financialData.readinessScore >= 50
+                  ? "Fair Position"
+                  : "Needs Improvement"}
+              </p>
               <p className="text-sm text-gray-600">You're in a solid position to take on a loan. Review our recommendations to optimize further.</p>
             </div>
           </div>
