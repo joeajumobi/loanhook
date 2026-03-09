@@ -1,9 +1,17 @@
-import { Home, TrendingUp, Target, Calculator, FileText } from "lucide-react";
+import { Home, TrendingUp, Target, Calculator, FileText, Languages } from "lucide-react";
+
 
 
 interface SideNavigationProps {
   activeScreen: string;
   onNavigate: (screen: string) => void;
+}
+
+declare global {
+  interface Window {
+    google: any;
+    googleTranslateElementInit: () => void;
+  }
 }
 
 export function SideNavigation({ activeScreen, onNavigate }: SideNavigationProps) {
@@ -48,7 +56,19 @@ export function SideNavigation({ activeScreen, onNavigate }: SideNavigationProps
             );
           })}
         </div>
+
+        
       </nav>
+
+      {/* Language Toggle at the bottom */}
+      <div className="mt-auto pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-3 px-3 py-2 text-gray-600">
+          <Languages className="w-5 h-5 text-blue-600" />
+          <div id="google_translate_element"></div>
+        </div>
+      </div>
+
+      
 
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">

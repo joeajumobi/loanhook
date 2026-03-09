@@ -8,6 +8,7 @@ import { BankReadyProfileScreen } from "./BankReadyProfileScreen";
 
 interface OnboardingScreenProps {
   onComplete: () => void;
+  onNavigate: (screen: string) => void;
   onNavigateToLogin?: () => void;
   onNavigateToSignup?: () => void;
 }
@@ -39,7 +40,7 @@ const features = [
   }
 ];
 
-export function OnboardingScreen({ onComplete, onNavigateToLogin, onNavigateToSignup }: OnboardingScreenProps) {
+export function OnboardingScreen({ onComplete, onNavigateToLogin, onNavigateToSignup, onNavigate }: OnboardingScreenProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const [scoreAnimation, setScoreAnimation] = useState(0);
@@ -80,17 +81,16 @@ export function OnboardingScreen({ onComplete, onNavigateToLogin, onNavigateToSi
 
   const renderScreen = () => {
     const activeScreen = features[activeIndex].screen;
-    const dummyNavigate = () => {};
     
     switch (activeScreen) {
       case "readiness":
-        return <LoanReadinessScreen onNavigate={dummyNavigate} />;
+        return <LoanReadinessScreen onNavigate={onNavigate} />;
       case "simulator":
-        return <ScenarioSimulatorScreen onNavigate={dummyNavigate} />;
+        return <ScenarioSimulatorScreen onNavigate={onNavigate} />;
       case "improvement":
-        return <ImprovementPlanScreen onNavigate={dummyNavigate} />;
+        return <ImprovementPlanScreen onNavigate={onNavigate} />;
       case "profile":
-        return <BankReadyProfileScreen onNavigate={dummyNavigate} />;
+        return <BankReadyProfileScreen onNavigate={onNavigate} />;
       default:
         return null;
     }

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema({
   email: { 
@@ -18,4 +18,4 @@ const UserSchema = new mongoose.Schema({
 });
 
 // This exports the model so your Controllers can use it to find/create users
-module.exports = mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema);

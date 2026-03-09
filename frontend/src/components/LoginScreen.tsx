@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Shield, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { login } from "../services/authService";
 
 interface LoginScreenProps {
   onLogin: () => void;
@@ -12,16 +13,49 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleGoogleQuickStart = async () => {
+    setError("");
+    setIsSubmitting(true);
+    try {
+      // Logs in with a pre-set test account automatically
+      const data = await login("testuser@loanhook.app", "testpassword123");
+
+      if (data && data.token) {
+        localStorage.setItem("token", data.token);
+        onLogin();
+      } else {
+        setError("Quick start unavailable. Please sign up manually.");
+      }
+    } catch (err) {
+      setError("Server connection failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
-      onLogin();
-    }, 1000);
+    setError("");
+    setIsSubmitting(true);
+
+    try {
+      const data = await login(email, password);
+
+      // This is the fix: Only call onLogin if the database returns a token
+      if (data && data.token) {
+        localStorage.setItem("token", data.token);
+        onLogin(); 
+      } else {
+        setError(data.error || "Login failed. Please check your credentials.");
+      }
+    } catch (err) {
+      setError("Server connection failed. Is your backend running?");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -33,12 +67,19 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
             <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8 md:w-10 md:h-10 text-white" />
             </div>
-            <h1 className="text-3xl md:text-4xl text-gray-900 mb-2">Welcome Back</h1>
+            <h1 className="text-3xl md:text-4xl text-gray-900 mb-2 font-bold">Welcome Back</h1>
             <p className="text-gray-600">Sign in to continue to LoanHook</p>
           </div>
 
           {/* Login Form */}
           <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
+            {/* Added error display so you can see why login fails */}
+            {error && (
+              <p className="mb-4 text-sm text-red-600 text-center bg-red-50 p-2 rounded-lg">
+                {error}
+              </p>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email Field */}
               <div>
@@ -80,11 +121,7 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <EyeOff className="w-5 h-5" />
-                    ) : (
-                      <Eye className="w-5 h-5" />
-                    )}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
@@ -109,10 +146,10 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
               {/* Submit Button */}
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSubmitting}
                 className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white rounded-xl text-base md:text-lg"
               >
-                {isLoading ? (
+                {isSubmitting ? (
                   <span>Signing in...</span>
                 ) : (
                   <>
@@ -137,6 +174,8 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
+                onClick={handleGoogleQuickStart} // Added this
+                disabled={isSubmitting} // Added this
                 className="h-12 flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -177,7 +216,7 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
               Don't have an account?{" "}
               <button
                 onClick={onNavigateToSignup}
-                className="text-blue-600 hover:text-blue-700"
+                className="text-blue-600 hover:text-blue-700 font-bold"
               >
                 Sign up for free
               </button>

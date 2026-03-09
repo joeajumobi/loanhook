@@ -3,9 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import financeRoutes from './routes/finance.js';
 import mongoose from 'mongoose';
+import authRoutes from './routes/authRoutes.js';
 
 
-require('dotenv').config();
+dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -15,14 +16,35 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(cors());
-
 app.get('/', (req, res) => {
   res.send('Backend is working !');
 });
 
 app.use('/api/finance', financeRoutes);
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
 });
+
+// backend/server.js
+import User from './models/User.js';
+import bcrypt from 'bcryptjs';
+
+const createTestUser = async () => {
+  const testEmail = "testuser@loanhook.app";
+  const existingUser = await User.findOne({ email: testEmail });
+  
+  if (!existingUser) {
+    const hashedPassword = await bcrypt.hash("testpassword123", 10);
+    await User.create({
+      fullName: "Demo User",
+      email: testEmail,
+      password: hashedPassword
+    });
+    console.log("✅ Demo account created: testuser@loanhook.app");
+  }
+};
+
+// Call this after your MongoDB connection is established
+createTestUser();
