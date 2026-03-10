@@ -1,5 +1,13 @@
 import { useEffect } from "react";
-import { Home, TrendingUp, Target, Calculator, FileText, Languages } from "lucide-react";
+import { 
+  Home, 
+  TrendingUp, 
+  Target, 
+  Calculator, 
+  FileText, 
+  Languages, 
+  MessageCircle 
+} from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
 declare global {
@@ -9,14 +17,13 @@ declare global {
   }
 }
 
+// Fixed: Defined outside the component so it is accessible to the JSX below
 const setLanguage = (lang: 'en' | 'es') => {
   document.cookie = `googtrans=/en/${lang}; path=/`;
-  document.cookie = `googtrans=/en/${lang}; domain=.localhost; path=/`;
+  document.cookie = `googtrans=/en/${lang}; domain=localhost; path=/`;
   window.location.reload();
 };
 
-// Note: activeScreen and onNavigate props are no longer strictly needed 
-// because NavLink handles this automatically via the URL!
 export function SideNavigation() {
   const location = useLocation();
   
@@ -45,22 +52,25 @@ export function SideNavigation() {
 
     const timer = setTimeout(initTranslate, 1000);
     return () => clearTimeout(timer);
-  }, [location.pathname]); // Re-check whenever the URL path changes
+  }, [location.pathname]);
 
   return (
     <div className="hidden md:flex md:flex-col w-64 bg-white border-r border-gray-200 fixed left-0 top-0 bottom-0 z-10">
+      {/* Logo Section */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl" />
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center">
+            <div className="w-5 h-5 bg-white/20 rounded-full" />
+          </div>
           <span className="text-xl text-gray-900 font-bold">LoanHook</span>
         </div>
       </div>
 
+      {/* Main Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            
             return (
               <NavLink
                 key={item.id}
@@ -81,13 +91,29 @@ export function SideNavigation() {
         </div>
       </nav>
 
-      <div className="mt-auto px-4 py-4 border-t border-gray-100">
-        <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-xl border border-gray-100">
+      {/* AI Assistant & Settings Section */}
+      <div className="p-4 border-t border-gray-200 space-y-4">
+        {/* Fixed AI Chat Button as NavLink */}
+        <NavLink
+          to="/chat"
+          className={({ isActive }) => 
+            `w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              isActive
+                ? 'bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-lg'
+                : 'bg-gradient-to-r from-blue-50 to-teal-50 text-blue-700 hover:from-blue-100 hover:to-teal-100'
+            }`
+          }
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span className="font-semibold">AI Assistant</span>
+        </NavLink>
+
+        {/* Language Switcher */}
+        <div className="px-3 py-2 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Languages className="w-4 h-4 text-blue-600 shrink-0" />
             <span className="text-xs font-semibold text-gray-600 uppercase">Lang</span>
           </div>
-          
           <div className="flex gap-1">
             <button 
               onClick={() => setLanguage('en')}
@@ -103,10 +129,11 @@ export function SideNavigation() {
             </button>
           </div>
         </div>
+        
+        {/* Hidden Translate Element */}
         <div id="google_translate_element" style={{ display: 'none' }}></div>
-      </div>
 
-      <div className="p-4 border-t border-gray-200">
+        {/* Support Card */}
         <div className="bg-blue-50 rounded-xl p-4">
           <p className="text-sm text-blue-900 mb-1 font-semibold">Need Help?</p>
           <p className="text-xs text-blue-700">Contact support team</p>

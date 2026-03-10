@@ -12,7 +12,11 @@ interface LoanSuggestion {
   link?: string; 
 }
 
-export function ScenarioSimulatorScreen() {
+interface ScenarioSimulatorProps {
+  onNavigate?: (screen: string) => void;
+}
+
+export function ScenarioSimulatorScreen({ onNavigate }: ScenarioSimulatorProps) {
   const navigate = useNavigate();
 
   // --- STATE ---

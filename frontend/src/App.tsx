@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { LandingPage } from "./components/LandingPage";
 import { LoginScreen } from "./components/LoginScreen";
 import { SignupScreen } from "./components/SignupScreen";
@@ -9,6 +9,7 @@ import { LoanReadinessScreen } from "./components/LoanReadinessScreen";
 import { ImprovementPlanScreen } from "./components/ImprovementPlanScreen";
 import { ScenarioSimulatorScreen } from "./components/ScenarioSimulatorScreen";
 import { BankReadyProfileScreen } from "./components/BankReadyProfileScreen";
+import { ChatBotScreen } from "./components/ChatBotScreen"; // 1. IMPORT CHATBOT
 import { BottomNavigation } from "./components/BottomNavigation";
 import { SideNavigation } from "./components/SideNavigation";
 
@@ -19,32 +20,41 @@ declare global {
   }
 }
 
-// Separate component for the authenticated layout to use hooks like useLocation
+// --- AUTHENTICATED LAYOUT ---
 function AuthenticatedApp({ onLogout }: { onLogout: () => void }) {
   const location = useLocation();
+  const navigate = useNavigate(); 
   const isOnboarding = location.pathname === "/onboarding";
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
-      {/* 1. Side Navigation (Desktop) - Hidden during onboarding */}
       {!isOnboarding && (
         <div className="hidden md:flex md:w-64 md:fixed md:inset-y-0">
           <SideNavigation />
         </div>
       )}
 
-      {/* 2. Main Content Area */}
       <main className={`flex-1 ${!isOnboarding ? "md:ml-64" : "w-full"} pb-20 md:pb-0`}>
-        <div className={`${isOnboarding ? "max-w-4xl" : "max-w-7xl"} mx-auto p-4`}>
+        <div className={`${isOnboarding ? "max-w-none p-0" : "max-w-7xl p-4"} mx-auto`}>
           <Routes>
-            <Route path="/onboarding" element={<OnboardingScreen />} />
+            <Route path="/onboarding" element={
+              <OnboardingScreen 
+                onComplete={() => navigate("/dashboard")} 
+                onNavigateToLogin={() => navigate("/login")}
+                onNavigateToSignup={() => navigate("/signup")}
+              />
+            } />
             <Route path="/dashboard" element={<DashboardScreen />} />
             <Route path="/readiness" element={<LoanReadinessScreen />} />
             <Route path="/improvement" element={<ImprovementPlanScreen />} />
             <Route path="/simulator" element={<ScenarioSimulatorScreen />} />
             <Route path="/profile" element={<BankReadyProfileScreen />} />
             
-            {/* Redirect any logged-in user from / to dashboard */}
+            {/* 2. ADD CHAT ROUTE */}
+            <Route path="/chat" element={
+              <ChatBotScreen onNavigate={(screen) => navigate(`/${screen}`)} />
+            } />
+            
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
@@ -52,7 +62,7 @@ function AuthenticatedApp({ onLogout }: { onLogout: () => void }) {
           {!isOnboarding && (
             <button 
               onClick={onLogout}
-              className="mt-8 text-sm text-red-500 hover:text-red-700 font-medium transition-colors"
+              className="mt-8 ml-4 text-sm text-red-500 hover:text-red-700 font-medium"
             >
               Logout (Testing)
             </button>
@@ -60,7 +70,6 @@ function AuthenticatedApp({ onLogout }: { onLogout: () => void }) {
         </div>
       </main>
 
-      {/* 3. Bottom Navigation (Mobile) - Hidden during onboarding */}
       {!isOnboarding && (
         <div className="md:hidden">
           <BottomNavigation />
@@ -70,6 +79,38 @@ function AuthenticatedApp({ onLogout }: { onLogout: () => void }) {
   );
 }
 
+// --- ROUTE MANAGER ---
+function AppRoutes({ 
+  isAuthenticated, 
+  handleLogin, 
+  handleSignup, 
+  handleLogout 
+}: any) {
+  const navigate = useNavigate();
+
+  return (
+    <Routes>
+      {isAuthenticated ? (
+        <Route path="/*" element={<AuthenticatedApp onLogout={handleLogout} />} />
+      ) : (
+        <>
+          <Route path="/" element={
+            <LandingPage 
+              onGetStarted={() => navigate("/signup")} 
+              onNavigateToLogin={() => navigate("/login")} 
+              onNavigateToSignup={() => navigate("/signup")} 
+            />
+          } />
+          <Route path="/login" element={<LoginScreen onLogin={handleLogin} />} />
+          <Route path="/signup" element={<SignupScreen onSignup={handleSignup} />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+    </Routes>
+  );
+}
+
+// --- MAIN APP ---
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,20 +146,12 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        {isAuthenticated ? (
-          // If logged in, use the layout with Navigation
-          <Route path="/*" element={<AuthenticatedApp onLogout={handleLogout} />} />
-        ) : (
-          // If not logged in, show Auth screens
-          <>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginScreen onLogin={handleLogin} />} />
-            <Route path="/signup" element={<SignupScreen onSignup={handleSignup} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </>
-        )}
-      </Routes>
+      <AppRoutes 
+        isAuthenticated={isAuthenticated}
+        handleLogin={handleLogin}
+        handleSignup={handleSignup}
+        handleLogout={handleLogout}
+      />
     </BrowserRouter>
   );
 }

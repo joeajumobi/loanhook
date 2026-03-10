@@ -4,8 +4,10 @@ import dotenv from 'dotenv';
 import financeRoutes from './routes/finance.js';
 import mongoose from 'mongoose';
 import authRoutes from './routes/authRoutes.js';
+import chatrouter from './routes/chat.js';
 
 dotenv.config();
+console.log("Key Check:", process.env.GEMINI_API_KEY ? "Key is loaded ✅" : "Key is MISSING ❌");
 import aiRoutes from './routes/aiSuggestions.js';
 
 
@@ -26,6 +28,8 @@ app.get('/', (req, res) => {
 app.use('/api/finance', financeRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/chat', chatrouter);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
