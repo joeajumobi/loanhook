@@ -7,9 +7,9 @@ import { ImprovementPlanScreen } from "./ImprovementPlanScreen";
 import { BankReadyProfileScreen } from "./BankReadyProfileScreen";
 
 interface LandingPageProps {
-  onGetStarted: () => void;
-  onNavigateToLogin: () => void;
-  onNavigateToSignup: () => void;
+  onGetStarted?: () => void;
+  onNavigateToLogin?: () => void;
+  onNavigateToSignup?: () => void;
 }
 
 const features = [

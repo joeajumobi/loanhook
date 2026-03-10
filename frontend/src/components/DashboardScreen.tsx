@@ -12,11 +12,7 @@ import {
   CartesianGrid,
   Tooltip
 } from "recharts";
-
-interface DashboardScreenProps {
-  onNavigate: (screen: string) => void;
-  onAuthFailure: () => void;
-}
+import { useNavigate } from "react-router-dom";
 
 interface Applicant {
   applicantId: number;
@@ -31,10 +27,8 @@ interface Applicant {
   debt: number;
 }
 
-export function DashboardScreen({
-  onNavigate,
-  onAuthFailure
-}: DashboardScreenProps) {
+export function DashboardScreen() {
+  const navigate = useNavigate();
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +38,9 @@ export function DashboardScreen({
         const token = localStorage.getItem("token");
 
         if (!token) {
-          onAuthFailure();
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
           return;
         }
 
@@ -57,7 +53,9 @@ export function DashboardScreen({
         const data = await response.json();
 
         if (response.status === 401) {
-          onAuthFailure();
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
           return;
         }
 
@@ -68,14 +66,16 @@ export function DashboardScreen({
         setApplicant(data);
       } catch (error) {
         console.error("Error fetching applicant data:", error);
-        onAuthFailure();
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
     fetchApplicant();
-  }, [onAuthFailure]);
+  }, [navigate]);
 
   if (loading) {
     return <div className="p-6">Loading dashboard...</div>;
@@ -171,8 +171,8 @@ export function DashboardScreen({
               Loan Readiness Score
             </h2>
             <button
-              onClick={() => onNavigate("readiness")}
-              className="text-blue-600 text-sm hover:underline"
+              onClick={() => navigate("/readiness")}
+              className="text-blue-600 text-sm hover:underline font-medium"
             >
               Details →
             </button>

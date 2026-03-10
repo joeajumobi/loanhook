@@ -2,7 +2,7 @@ import { Target, TrendingUp, CreditCard, PiggyBank, CheckCircle2, Clock } from "
 import { Progress } from "./ui/progress";
 
 interface ImprovementPlanScreenProps {
-  onNavigate: (screen: string) => void;
+  onNavigate?: (screen: string) => void;
 }
 
 export function ImprovementPlanScreen({ onNavigate }: ImprovementPlanScreenProps) {

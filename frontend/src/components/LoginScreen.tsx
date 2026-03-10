@@ -6,7 +6,7 @@ import { login } from "../services/authService";
 
 interface LoginScreenProps {
   onLogin: () => void;
-  onNavigateToSignup: () => void;
+  onNavigateToSignup?: () => void;
 }
 
 export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {

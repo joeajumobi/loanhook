@@ -6,7 +6,7 @@ import { signup } from "../services/authService"; // Ensure you import your sign
 
 interface SignupScreenProps {
   onSignup: (token: string) => void; // Updated to accept the token
-  onNavigateToLogin: () => void;
+  onNavigateToLogin?: () => void;
 }
 
 export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps) {

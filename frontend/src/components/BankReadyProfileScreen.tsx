@@ -2,7 +2,7 @@ import { Share2, Download, CheckCircle2, TrendingUp, Shield, DollarSign, Calenda
 import { Progress } from "./ui/progress";
 
 interface BankReadyProfileScreenProps {
-  onNavigate: (screen: string) => void;
+  onNavigate?: (screen: string) => void;
 }
 
 export function BankReadyProfileScreen({ onNavigate }: BankReadyProfileScreenProps) {

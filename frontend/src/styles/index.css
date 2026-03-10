@@ -1,3 +1,48 @@
 /* @import './fonts.css'; */
 @import './tailwind.css';
 @import './theme.css';
+
+/* index.css */
+
+/* Hide the top translation bar and force the site to stay at the top */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-banner-frame {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+
+/* Hide Google Branding while keeping the dropdown interactive */
+.goog-logo-link, 
+.goog-te-gadget span, 
+.goog-te-gadget div {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+
+/* Ensure the gadget container doesn't collapse to 0px */
+.goog-te-gadget {
+  font-size: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Style the actual dropdown menu */
+#google_translate_element select {
+  background: transparent !important;
+  border: none !important;
+  color: #4b5563 !important; /* Gray-600 */
+  font-size: 0.875rem !important; /* Text-sm */
+  cursor: pointer;
+  outline: none !important;
+  padding: 4px 0 !important;
+  width: 120px !important; /* Force width so it's clickable */
+  display: block !important;
+}
+
+/* Hide the Google icon inside the container */
+#google_translate_element img {
+  display: none !important;
+}

@@ -1,11 +1,15 @@
-import { CheckCircle2, AlertTriangle, XCircle, TrendingUp, Shield, DollarSign } from "lucide-react";
+import { CheckCircle2, AlertTriangle, TrendingUp, Shield, DollarSign } from "lucide-react";
 import { Progress } from "./ui/progress";
+import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
 
+// We can keep the interface empty or remove it if not used elsewhere
 interface LoanReadinessScreenProps {
-  onNavigate: (screen: string) => void;
+  onNavigate?: (screen: string) => void;
 }
 
 export function LoanReadinessScreen({ onNavigate }: LoanReadinessScreenProps) {
+  const navigate = useNavigate(); // 2. Initialize the navigate function
+
   const readinessData = {
     score: 72,
     safeLoanAmount: 15000,
@@ -146,23 +150,25 @@ export function LoanReadinessScreen({ onNavigate }: LoanReadinessScreenProps) {
 
       {/* Actions */}
       <div className="px-6 mt-6 mb-6 space-y-3">
+        {/* 3. Updated onClick to use navigate() */}
         <button 
-          onClick={() => onNavigate('improvement')}
+          onClick={() => navigate('/improvement')}
           className="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white h-12 rounded-xl"
         >
           View Improvement Plan
         </button>
         <button 
-          onClick={() => onNavigate('simulator')}
+          onClick={() => navigate('/simulator')}
           className="w-full bg-white hover:bg-gray-50 text-gray-900 h-12 rounded-xl border border-gray-200"
         >
           Try Loan Scenarios
         </button>
       </div>
+
       <div className="px-6 mb-6 mt-12">
         <div className="bg-gray-100 rounded-xl p-4  ">
           <p className="text-xs text-gray-600 leading-relaxed">
-            @ Copyright 2024 LoanHook. All rights reserved. Jy'Mir Fuller & Jospeh Ajumobi | <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a> | <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>
+            @ Copyright 2024 LoanHook. All rights reserved. Jy'Mir Fuller & Joseph Ajumobi | <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a> | <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>
           </p>
         </div>
       </div>

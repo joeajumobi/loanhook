@@ -7,8 +7,8 @@ import { ImprovementPlanScreen } from "./ImprovementPlanScreen";
 import { BankReadyProfileScreen } from "./BankReadyProfileScreen";
 
 interface OnboardingScreenProps {
-  onComplete: () => void;
-  onNavigate: (screen: string) => void;
+  onComplete?: () => void;
+  onNavigate?: (screen: string) => void;
   onNavigateToLogin?: () => void;
   onNavigateToSignup?: () => void;
 }
