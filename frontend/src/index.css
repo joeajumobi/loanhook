@@ -1,3 +1,43 @@
 /* @import './styles/fonts.css';  Updated path */
 @import './styles/tailwind.css';
 @import './styles/theme.css';
+
+/* index.css */
+
+/* 1. Hide the top banner/bar that appears after translation */
+.goog-te-banner-frame.skiptranslate, 
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+/* 2. Hide the "Powered by Google" branding inside the dropdown */
+.goog-logo-link, 
+.goog-te-gadget span, 
+.goog-te-gadget div {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+
+/* 3. Hide the Google icon that pops up in the dropdown */
+#google_translate_element img {
+  display: none !important;
+}
+
+/* 4. Style the dropdown to look like a clean part of your sidebar */
+#google_translate_element select {
+  background: transparent !important;
+  border: none !important;
+  color: #4b5563 !important; /* text-gray-600 */
+  font-size: 0.875rem !important; /* text-sm */
+  cursor: pointer;
+  outline: none !important;
+  font-weight: 500;
+}
