@@ -39,7 +39,7 @@ export function ChatBotScreen({ onNavigate }: ChatBotScreenProps) {
         {
           id: "1",
           type: "bot",
-          content: `Hello! I'm your BorrowSmart AI assistant. I see your current Loan Readiness Score is ${score}/100. How can I assist you today?`,
+          content: `Hello! I'm your LoanHook AI assistant. I see your current Loan Readiness Score is ${score}/100. How can I assist you today?`,
           timestamp: new Date(),
           suggestions: QUICK_QUESTIONS // Buttons are back!
         }
@@ -183,7 +183,7 @@ export function ChatBotScreen({ onNavigate }: ChatBotScreenProps) {
                  <Bot className="w-5 h-5 text-white" />
                </div>
                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-                 <div className="flex gap-1.5 italic text-xs text-blue-500 animate-pulse">BorrowSmart is typing...</div>
+                 <div className="flex gap-1.5 italic text-xs text-blue-500 animate-pulse">LoanHook is typing...</div>
                </div>
              </div>
           )}

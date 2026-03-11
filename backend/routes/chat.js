@@ -33,7 +33,7 @@ router.post('/ask', async (req, res) => {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are BorrowSmart AI. 
+              text: `You are LoanHook AI. 
               CONTEXT: User has a Monthly Income of $${income} and a Loan Readiness Score of ${readinessScore}/100. 
               INSTRUCTIONS: Be extremely concise. Give a 2-3 sentence response max. 
               Always reference their specific score if they ask about their chances.
