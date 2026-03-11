@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Slider } from "./ui/slider";
 import { 
-  LineChart, 
+ LineChart, 
   Line, 
   XAxis, 
   YAxis, 

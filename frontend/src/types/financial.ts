@@ -9,4 +9,5 @@ export interface Applicant {
   utilities: number;
   other: number;
   debt: number;
+  monthlyDebtPayment: number;
 }

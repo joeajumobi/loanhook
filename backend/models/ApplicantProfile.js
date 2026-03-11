@@ -46,6 +46,10 @@ const applicantProfileSchema = new mongoose.Schema({
   debt: {
     type: Number,
     required: true
+  },
+  monthlyDebtPayment: {
+    type: Number,
+    required: true
   }
 });
 

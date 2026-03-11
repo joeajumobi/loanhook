@@ -42,7 +42,7 @@ export function LoanReadinessScreen({ onNavigate }: ScreenProps) {
     approvalLikelihood: getApprovalLikelihood(applicant)
   };
 
-  const formattedDebtToIncome = Math.round(readinessData.debtToIncome);
+  const formattedDebtToIncome = readinessData.debtToIncome.toFixed(1);
   const formattedSavingsBuffer = readinessData.savingsBuffer.toFixed(1);
   const formattedApprovalLikelihood = Math.round(readinessData.approvalLikelihood);
 

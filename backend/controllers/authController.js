@@ -4,6 +4,14 @@ import jwt from 'jsonwebtoken';
 import ApplicantProfile from '../models/ApplicantProfile.js';
 import generateApplicant from '../utils/generateApplicant.js';
 
+
+// Handles user sign up and login authentication 
+// gets user in put from request body (name, email, password)
+// creates a hashpassword to securely store the users informaiton to the monngo DB (database)
+// then generates new mock data and assigns it to user user their userID
+// generates an authentication token that logs them in giving them access to the dashboard
+// it then sends the token to the frontend
+// A try catch also exists that will send an error if the account already exists
 export const signup = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
@@ -47,6 +55,10 @@ export const signup = async (req, res) => {
   }
 };
 
+//accepts the email and password input from the user
+//checks to see verify user credentials and returns an error if infomration isn't found
+//also compares the hashpassword saved to the mongo DB(database) to the entered user password
+//then created and sends the token to the frontend giving them access to their dashboard
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -77,6 +89,9 @@ export const login = async (req, res) => {
   }
 };
 
+//creates a guest login
+//tests to find if the user exists, if not it creates one, and assignes them access to a mock profile
+//then creates a token and sends it over to the frontend allowing them to view the dashboard
 export const guestLogin = async (req, res) => {
   try {
     // Look for a specific test user or create one if it doesn't exist
