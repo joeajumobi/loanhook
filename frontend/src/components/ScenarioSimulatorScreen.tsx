@@ -59,10 +59,8 @@ export function ScenarioSimulatorScreen({ onNavigate }: ScreenProps) {
   if (loading) return <div className="p-6 text-center animate-pulse text-blue-600 font-bold">Loading simulator data...</div>;
   if (!applicant) return <div className="p-6 text-center text-red-500">No applicant data available. Please login.</div>;
 
-  // --- CALCULATIONS ---
+  // --- CALCULATIONS (FIXED MATH) ---
   const monthlyIncome = applicant.income;
-  const monthlyExpenses = getMonthlyExpenses(applicant);
-  const availableIncome = monthlyIncome - monthlyExpenses;
   const readinessScore = getReadinessScore(applicant); 
 
   const r = interestRate[0] / 100 / 12;
@@ -72,14 +70,17 @@ export function ScenarioSimulatorScreen({ onNavigate }: ScreenProps) {
     ? loanAmount[0] / n 
     : (loanAmount[0] * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 
-  const paymentToAvailableRatio = availableIncome > 0 ? (monthlyPayment / availableIncome) * 100 : 100;
-  const isAffordable = paymentToAvailableRatio < 50;
-  const riskLevel = paymentToAvailableRatio < 30 ? "low" : paymentToAvailableRatio < 50 ? "medium" : "high";
+  // Use Debt-to-Income (DTI) ratio for the sliders to be responsive
+  // A payment under 15% of total income is generally considered "Safe"
+  const paymentToIncomeRatio = (monthlyPayment / monthlyIncome) * 100;
+  
+  const isAffordable = paymentToIncomeRatio < 15;
+  const riskLevel = paymentToIncomeRatio < 10 ? "low" : paymentToIncomeRatio < 20 ? "medium" : "high";
 
   // --- AI LOGIC ---
   const getAiSuggestions = async () => {
     setIsAiLoading(true);
-    setSuggestions([]); // Clear old suggestions to show the "Consulting" state
+    setSuggestions([]); 
     
     try {
       const response = await fetch('http://localhost:5001/api/ai/suggestions', {
@@ -87,27 +88,24 @@ export function ScenarioSimulatorScreen({ onNavigate }: ScreenProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           income: monthlyIncome, 
-          score: readinessScore, // This will be 21
+          score: readinessScore,
           loanType: loanType 
         })
       });
       
       const data = await response.json();
-      
-      // Safety check: ensure we handle the JSON array correctly
       if (Array.isArray(data)) {
         setSuggestions(data);
       } else {
-        throw new Error("Invalid response format");
+        throw new Error("Invalid format");
       }
     } catch (error: any) {
       console.error("AI Fetch Error:", error);
-      // Fallback UI inside suggestions
       setSuggestions([{
         title: "Service Busy",
         rate: "N/A",
         term: "N/A",
-        reason: "The AI advisor is currently handling high volume. Please try again in 30 seconds.",
+        reason: "The AI advisor is currently handling high volume. Please try again.",
         link: "#"
       }]);
     } finally {
@@ -242,6 +240,27 @@ export function ScenarioSimulatorScreen({ onNavigate }: ScreenProps) {
               <p className="text-sm font-bold uppercase tracking-widest text-gray-400">Tap "Get AI Matches" for local NC options</p>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Chart Section */}
+      <div className="px-6 mt-12">
+        <div className="bg-white rounded-[40px] p-8 border border-gray-100 shadow-sm">
+          <h2 className="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Repayment Trajectory</h2>
+          <div className="h-56 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={generateSchedule()}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="month" hide />
+                <YAxis hide />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}
+                  formatter={(v: any) => [`$${Math.round(v).toLocaleString()}`, 'Balance']} 
+                />
+                <Line type="monotone" dataKey="balance" stroke="#3b82f6" strokeWidth={6} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
