@@ -3,13 +3,15 @@ import { Shield, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { login } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 interface LoginScreenProps {
-  onLogin: () => void;
-  onNavigateToSignup?: () => void;
+  onLogin: (token?: string) => void;
 }
 
-export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
+export function LoginScreen({ onLogin }: LoginScreenProps) {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,22 +21,27 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
   const handleGoogleQuickStart = async () => {
     setError("");
     setIsSubmitting(true);
+
     try {
-      // Logs in with a pre-set test account automatically
       const data = await login("testuser@loanhook.app", "testpassword123");
 
       if (data && data.token) {
         localStorage.setItem("token", data.token);
-        onLogin();
+
+        if ("user" in data && data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
+
+        onLogin(data.token);
       } else {
-        setError("Quick start unavailable. Please sign up manually.");
+        setError(data?.error || "Quick start unavailable. Please sign up manually.");
       }
     } catch (err) {
       setError("Server connection failed.");
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,10 +51,14 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
     try {
       const data = await login(email, password);
 
-      // This is the fix: Only call onLogin if the database returns a token
       if (data && data.token) {
         localStorage.setItem("token", data.token);
-        onLogin(); 
+
+        if ("user" in data && data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
+
+        onLogin(data.token);
       } else {
         setError(data.error || "Login failed. Please check your credentials.");
       }
@@ -62,7 +73,6 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Logo */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8 md:w-10 md:h-10 text-white" />
@@ -71,17 +81,14 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
             <p className="text-gray-600">Sign in to continue to LoanHook</p>
           </div>
 
-          {/* Login Form */}
           <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-            {/* Added error display so you can see why login fails */}
             {error && (
               <p className="mb-4 text-sm text-red-600 text-center bg-red-50 p-2 rounded-lg">
                 {error}
               </p>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm text-gray-700 mb-2">
                   Email Address
@@ -100,7 +107,6 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
                 </div>
               </div>
 
-              {/* Password Field */}
               <div>
                 <label htmlFor="password" className="block text-sm text-gray-700 mb-2">
                   Password
@@ -126,7 +132,6 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
                 </div>
               </div>
 
-              {/* Forgot Password */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center">
                   <input
@@ -143,7 +148,6 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
                 </button>
               </div>
 
-              {/* Submit Button */}
               <Button
                 type="submit"
                 disabled={isSubmitting}
@@ -160,7 +164,6 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
               </Button>
             </form>
 
-            {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
@@ -170,12 +173,11 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
               </div>
             </div>
 
-            {/* Social Login */}
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={handleGoogleQuickStart} // Added this
-                disabled={isSubmitting} // Added this
+                onClick={handleGoogleQuickStart}
+                disabled={isSubmitting}
                 className="h-12 flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -198,6 +200,7 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
                 </svg>
                 <span className="text-sm text-gray-700">Google</span>
               </button>
+
               <button
                 type="button"
                 className="h-12 flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
@@ -210,12 +213,11 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
             </div>
           </div>
 
-          {/* Sign Up Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{" "}
               <button
-                onClick={onNavigateToSignup}
+                onClick={() => navigate("/signup")}
                 className="text-blue-600 hover:text-blue-700 font-bold"
               >
                 Sign up for free
@@ -223,7 +225,6 @@ export function LoginScreen({ onLogin, onNavigateToSignup }: LoginScreenProps) {
             </p>
           </div>
 
-          {/* Trust Indicators */}
           <div className="mt-8 flex items-center justify-center gap-6 text-xs text-gray-500">
             <div className="flex items-center gap-1">
               <Shield className="w-4 h-4" />

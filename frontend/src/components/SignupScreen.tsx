@@ -1,21 +1,24 @@
 import { useState } from "react";
-import { Shield, Mail, Lock, Eye, EyeOff, User, ArrowRight, Check } from "lucide-react";
+import { Shield, Mail, Lock, Eye, EyeOff, User, ArrowRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { signup } from "../services/authService"; // Ensure you import your signup service
+import { signup } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
 interface SignupScreenProps {
-  onSignup: (token: string) => void; // Updated to accept the token
-  onNavigateToLogin?: () => void;
+  onSignup: (token: string) => void;
 }
 
-export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps) {
+export function SignupScreen({ onSignup }: SignupScreenProps) {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: ""
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +33,7 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
       setError("Passwords don't match!");
       return;
     }
+
     if (!agreedToTerms) {
       setError("Please agree to the terms and conditions");
       return;
@@ -38,11 +42,13 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
     setIsLoading(true);
 
     try {
-      // 1. Call the real backend signup service
       const data = await signup(formData.fullName, formData.email, formData.password);
 
-      if (data.token) {
-        // 2. Pass the real token back to App.tsx
+      if (data && data.token) {
+        if ("user" in data && data.user) {
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
+
         onSignup(data.token);
       } else {
         setError(data.error || "Signup failed. Try a different email.");
@@ -55,11 +61,12 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
   };
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const passwordStrength = () => {
     const password = formData.password;
+
     if (password.length === 0) return { strength: 0, label: "", color: "" };
     if (password.length < 6) return { strength: 25, label: "Weak", color: "bg-red-500" };
     if (password.length < 10) return { strength: 50, label: "Fair", color: "bg-yellow-500" };
@@ -73,7 +80,6 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col">
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
-          {/* Logo */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-600 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Shield className="w-8 h-8 md:w-10 md:h-10 text-white" />
@@ -82,10 +88,7 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
             <p className="text-gray-600">Start your smart borrowing journey</p>
           </div>
 
-          {/* Signup Form */}
           <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-100">
-            
-            {/* Real Error Feedback */}
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm text-center">
                 {error}
@@ -93,7 +96,6 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
             )}
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Full Name Field */}
               <div>
                 <label htmlFor="fullName" className="block text-sm text-gray-700 mb-2 font-medium">
                   Full Name
@@ -112,7 +114,6 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                 </div>
               </div>
 
-              {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm text-gray-700 mb-2 font-medium">
                   Email Address
@@ -131,7 +132,6 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                 </div>
               </div>
 
-              {/* Password Field */}
               <div>
                 <label htmlFor="password" className="block text-sm text-gray-700 mb-2 font-medium">
                   Password
@@ -155,7 +155,7 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {/* Strength Indicator stays the same */}
+
                 {formData.password && (
                   <div className="mt-2">
                     <div className="flex items-center gap-2 mb-1">
@@ -171,7 +171,6 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                 )}
               </div>
 
-              {/* Confirm Password Field */}
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm text-gray-700 mb-2 font-medium">
                   Confirm Password
@@ -197,7 +196,6 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                 </div>
               </div>
 
-              {/* Terms and Checkbox stays the same */}
               <div className="flex items-start gap-2">
                 <input
                   type="checkbox"
@@ -207,7 +205,14 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                   className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5 cursor-pointer"
                 />
                 <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                  I agree to the <button type="button" className="text-blue-600">Terms</button> and <button type="button" className="text-blue-600">Privacy Policy</button>
+                  I agree to the{" "}
+                  <button type="button" className="text-blue-600">
+                    Terms
+                  </button>{" "}
+                  and{" "}
+                  <button type="button" className="text-blue-600">
+                    Privacy Policy
+                  </button>
                 </label>
               </div>
 
@@ -216,12 +221,29 @@ export function SignupScreen({ onSignup, onNavigateToLogin }: SignupScreenProps)
                 disabled={isLoading || !agreedToTerms}
                 className="w-full h-12 md:h-14 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white rounded-xl text-base md:text-lg font-semibold"
               >
-                {isLoading ? <span>Creating Account...</span> : <>Create Account <ArrowRight className="ml-2 w-5 h-5" /></>}
+                {isLoading ? (
+                  <span>Creating Account...</span>
+                ) : (
+                  <>
+                    Create Account
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </>
+                )}
               </Button>
             </form>
-            {/* ... Social buttons and footer remain same */}
           </div>
-          {/* ... */}
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Already have an account?{" "}
+              <button
+                onClick={() => navigate("/login")}
+                className="text-blue-600 hover:text-blue-700 font-bold"
+              >
+                Log in
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </div>

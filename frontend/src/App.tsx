@@ -9,7 +9,7 @@ import { LoanReadinessScreen } from "./components/LoanReadinessScreen";
 import { ImprovementPlanScreen } from "./components/ImprovementPlanScreen";
 import { ScenarioSimulatorScreen } from "./components/ScenarioSimulatorScreen";
 import { BankReadyProfileScreen } from "./components/BankReadyProfileScreen";
-import { ChatBotScreen } from "./components/ChatBotScreen"; // 1. IMPORT CHATBOT
+import { ChatBotScreen } from "./components/ChatBotScreen"; 
 import { BottomNavigation } from "./components/BottomNavigation";
 import { SideNavigation } from "./components/SideNavigation";
 
@@ -49,18 +49,13 @@ function AuthenticatedApp({ onLogout }: { onLogout: () => void }) {
             <Route path="/improvement" element={<ImprovementPlanScreen />} />
             <Route path="/simulator" element={<ScenarioSimulatorScreen />} />
             <Route path="/profile" element={<BankReadyProfileScreen />} />
-            
-            {/* 2. ADD CHAT ROUTE */}
-            <Route path="/chat" element={
-              <ChatBotScreen onNavigate={(screen) => navigate(`/${screen}`)} />
-            } />
-            
+            <Route path="/chat" element={<ChatBotScreen onNavigate={(screen) => navigate(`/${screen}`)} />} />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
 
           {!isOnboarding && (
-            <button 
+            <button
               onClick={onLogout}
               className="mt-8 ml-4 text-sm text-red-500 hover:text-red-700 font-medium"
             >
@@ -79,37 +74,6 @@ function AuthenticatedApp({ onLogout }: { onLogout: () => void }) {
   );
 }
 
-// --- ROUTE MANAGER ---
-function AppRoutes({ 
-  isAuthenticated, 
-  handleLogin, 
-  handleSignup, 
-  handleLogout 
-}: any) {
-  const navigate = useNavigate();
-
-  return (
-    <Routes>
-      {isAuthenticated ? (
-        <Route path="/*" element={<AuthenticatedApp onLogout={handleLogout} />} />
-      ) : (
-        <>
-          <Route path="/" element={
-            <LandingPage 
-              onGetStarted={() => navigate("/signup")} 
-              onNavigateToLogin={() => navigate("/login")} 
-              onNavigateToSignup={() => navigate("/signup")} 
-            />
-          } />
-          <Route path="/login" element={<LoginScreen onLogin={handleLogin} />} />
-          <Route path="/signup" element={<SignupScreen onSignup={handleSignup} />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </>
-      )}
-    </Routes>
-  );
-}
-
 // --- MAIN APP ---
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -122,17 +86,14 @@ export default function App() {
   }, []);
 
   const handleLogin = (token?: string) => {
-    if (token) localStorage.setItem("token", token);
-    setIsAuthenticated(true);
-  };
-
-  const handleSignup = (token?: string) => {
-    if (token) localStorage.setItem("token", token);
+    // For demo/test user, we set a dummy token if none exists
+    localStorage.setItem("token", token || "demo-token");
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsAuthenticated(false);
   };
 
@@ -146,12 +107,31 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <AppRoutes 
-        isAuthenticated={isAuthenticated}
-        handleLogin={handleLogin}
-        handleSignup={handleSignup}
-        handleLogout={handleLogout}
-      />
+      <Routes>
+        {/* If authenticated, show the app. If not, show public routes */}
+        {isAuthenticated ? (
+          <Route path="/*" element={<AuthenticatedApp onLogout={handleLogout} />} />
+        ) : (
+          <>
+            <Route path="/" element={<LandingWrapper onLogin={handleLogin} />} />
+            <Route path="/login" element={<LoginScreen onLogin={handleLogin} />} />
+            <Route path="/signup" element={<SignupScreen onSignup={() => handleLogin()} />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
+      </Routes>
     </BrowserRouter>
+  );
+}
+
+// Simple wrapper to pass navigate to LandingPage
+function LandingWrapper({ onLogin }: { onLogin: () => void }) {
+  const navigate = useNavigate();
+  return (
+    <LandingPage 
+      onGetStarted={() => navigate("/signup")} 
+      onNavigateToLogin={() => navigate("/login")} 
+      onNavigateToSignup={() => navigate("/signup")} 
+    />
   );
 }

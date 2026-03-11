@@ -1,16 +1,15 @@
 import { useState, useEffect } from "react";
-import { Shield, TrendingUp, Target, DollarSign, PieChart, CheckCircle, ArrowRight, Link2, BarChart3, Users } from "lucide-react";
+import {
+  Shield,
+  TrendingUp,
+  Target,
+  PieChart,
+  CheckCircle,
+  ArrowRight,
+  Link2,
+  BarChart3
+} from "lucide-react";
 import { Button } from "./ui/button";
-import { LoanReadinessScreen } from "./LoanReadinessScreen";
-import { ScenarioSimulatorScreen } from "./ScenarioSimulatorScreen";
-import { ImprovementPlanScreen } from "./ImprovementPlanScreen";
-import { BankReadyProfileScreen } from "./BankReadyProfileScreen";
-
-interface LandingPageProps {
-  onGetStarted?: () => void;
-  onNavigateToLogin?: () => void;
-  onNavigateToSignup?: () => void;
-}
 
 const features = [
   {
@@ -39,6 +38,12 @@ const features = [
   }
 ];
 
+interface LandingPageProps {
+  onGetStarted: () => void;
+  onNavigateToLogin: () => void;
+  onNavigateToSignup: () => void;
+}
+
 export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignup }: LandingPageProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [scrolled, setScrolled] = useState(false);
@@ -47,17 +52,15 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
   const [interestRate, setInterestRate] = useState(6.5);
   const [loanTerm, setLoanTerm] = useState(60);
 
-  // Handle navbar scroll effect
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Animate score on mount
   useEffect(() => {
     const timer = setTimeout(() => {
       let current = 0;
@@ -67,64 +70,284 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         if (current >= 78) clearInterval(interval);
       }, 20);
     }, 500);
+
     return () => clearTimeout(timer);
   }, []);
-
-  const renderScreen = () => {
-    const activeScreen = features[activeIndex].screen;
-    const dummyNavigate = () => {};
-    
-    switch (activeScreen) {
-      case "readiness":
-        return <LoanReadinessScreen onNavigate={dummyNavigate} />;
-      case "simulator":
-        return <ScenarioSimulatorScreen onNavigate={dummyNavigate} />;
-      case "improvement":
-        return <ImprovementPlanScreen onNavigate={dummyNavigate} />;
-      case "profile":
-        return <BankReadyProfileScreen onNavigate={dummyNavigate} />;
-      default:
-        return null;
-    }
-  };
 
   const calculateMonthlyPayment = () => {
     const principal = loanAmount;
     const monthlyRate = interestRate / 100 / 12;
     const numPayments = loanTerm;
-    const payment = (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
-                    (Math.pow(1 + monthlyRate, numPayments) - 1);
+    const payment =
+      (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+      (Math.pow(1 + monthlyRate, numPayments) - 1);
+
     return Math.round(payment);
   };
 
   const getAffordabilityRisk = () => {
     const payment = calculateMonthlyPayment();
-    if (payment < 400) return { level: "Low Risk", color: "text-green-600", bg: "bg-green-100" };
-    if (payment < 600) return { level: "Moderate", color: "text-yellow-600", bg: "bg-yellow-100" };
+
+    if (payment < 400) {
+      return { level: "Low Risk", color: "text-green-600", bg: "bg-green-100" };
+    }
+    if (payment < 600) {
+      return { level: "Moderate", color: "text-yellow-600", bg: "bg-yellow-100" };
+    }
     return { level: "High Risk", color: "text-red-600", bg: "bg-red-100" };
+  };
+
+  const renderScreen = () => {
+    const activeScreen = features[activeIndex].screen;
+
+    switch (activeScreen) {
+      case "readiness":
+        return (
+          <div className="h-full bg-gray-50 pb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-teal-500 px-5 pt-10 pb-6 rounded-b-3xl">
+              <h2 className="text-lg text-white font-semibold mb-1">Loan Readiness</h2>
+              <p className="text-blue-100 text-sm">Your borrowing capacity analysis</p>
+            </div>
+
+            <div className="px-4 -mt-4 space-y-4">
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100">
+                <p className="text-xs text-gray-500 mb-1">Estimated Safe Loan Amount</p>
+                <p className="text-2xl font-bold text-gray-900">$15,000</p>
+                <p className="text-xs text-green-700 mt-2">
+                  Based on your financial profile
+                </p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100 space-y-3">
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-600">Debt-to-Income</span>
+                    <span className="text-green-600 font-medium">28%</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full w-[28%] bg-green-500 rounded-full"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-600">Savings Buffer</span>
+                    <span className="text-green-600 font-medium">6.5 mo</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full w-[54%] bg-teal-500 rounded-full"></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-600">Approval Likelihood</span>
+                    <span className="text-blue-600 font-medium">75%</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full w-[75%] bg-blue-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "simulator":
+        return (
+          <div className="h-full bg-gray-50 pb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-teal-500 px-5 pt-10 pb-6 rounded-b-3xl">
+              <h2 className="text-lg text-white font-semibold mb-1">Loan Simulator</h2>
+              <p className="text-blue-100 text-sm">Explore different loan scenarios</p>
+            </div>
+
+            <div className="px-4 -mt-4 space-y-4">
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 mb-1">Estimated Monthly Payment</p>
+                <p className="text-3xl font-bold text-gray-900">${calculateMonthlyPayment()}</p>
+                <p className="text-xs text-gray-500 mt-1">for {loanTerm} months</p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100 space-y-4">
+                <div>
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-gray-600">Loan Amount</span>
+                    <span className="text-blue-600 font-medium">${loanAmount.toLocaleString()}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="5000"
+                    max="50000"
+                    step="1000"
+                    value={loanAmount}
+                    onChange={(e) => setLoanAmount(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-gray-600">Interest Rate</span>
+                    <span className="text-blue-600 font-medium">{interestRate}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="3"
+                    max="15"
+                    step="0.5"
+                    value={interestRate}
+                    onChange={(e) => setInterestRate(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer slider"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs mb-2">
+                    <span className="text-gray-600">Loan Term</span>
+                    <span className="text-blue-600 font-medium">{loanTerm} mo</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[36, 60, 84].map((term) => (
+                      <button
+                        key={term}
+                        onClick={() => setLoanTerm(term)}
+                        className={`py-2 rounded-lg text-xs font-medium ${
+                          loanTerm === term
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {term} mo
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className={`rounded-2xl px-4 py-3 text-center ${getAffordabilityRisk().bg}`}>
+                <span className={`text-sm font-semibold ${getAffordabilityRisk().color}`}>
+                  {getAffordabilityRisk().level}
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "improvement":
+        return (
+          <div className="h-full bg-gray-50 pb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-teal-500 px-5 pt-10 pb-6 rounded-b-3xl">
+              <h2 className="text-lg text-white font-semibold mb-1">Improvement Plan</h2>
+              <p className="text-blue-100 text-sm">Steps to boost your readiness</p>
+            </div>
+
+            <div className="px-4 -mt-4 space-y-4">
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-gray-500">Current Score</span>
+                  <span className="text-xs text-gray-500">Potential: 92</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-3xl font-bold text-gray-900">72</p>
+                  <p className="text-sm text-green-600 font-semibold">+20 points</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">Build Emergency Fund</p>
+                    <p className="text-xs text-gray-500">High priority</p>
+                  </div>
+                  <span className="text-xs text-blue-600 font-medium">65%</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden mb-3">
+                  <div className="h-full w-[65%] bg-blue-500 rounded-full"></div>
+                </div>
+                <div className="space-y-2 text-xs text-gray-600">
+                  <p>• Set up monthly transfers</p>
+                  <p>• Reduce discretionary spending</p>
+                  <p>• Save toward 6 months of expenses</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "profile":
+        return (
+          <div className="h-full bg-gray-50 pb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-teal-500 px-5 pt-10 pb-6 rounded-b-3xl">
+              <h2 className="text-lg text-white font-semibold mb-1">Bank-Ready Profile</h2>
+              <p className="text-blue-100 text-sm">Your shareable financial summary</p>
+            </div>
+
+            <div className="px-4 -mt-4 space-y-4">
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-teal-500 flex items-center justify-center text-white font-semibold">
+                    AJ
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">Alex Johnson</p>
+                    <p className="text-xs text-gray-500">Financial Profile</p>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-gray-600">Readiness Score</span>
+                    <span className="text-green-600 font-medium">72</span>
+                  </div>
+                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-full w-[72%] bg-green-500 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-4 shadow border border-gray-100 space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Monthly Income</span>
+                  <span className="text-gray-900 font-medium">$4,500</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Monthly Expenses</span>
+                  <span className="text-gray-900 font-medium">$3,200</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Savings</span>
+                  <span className="text-green-600 font-medium">$8,500</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Debt</span>
+                  <span className="text-gray-900 font-medium">$2,800</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* SECTION 1 - Navigation Bar */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? 'bg-white/90 backdrop-blur-lg shadow-sm'
-            : 'bg-transparent'
+          scrolled ? "bg-white/90 backdrop-blur-lg shadow-sm" : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            {/* Logo */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-xl flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-semibold text-gray-900">BorrowSmart</span>
+              <span className="text-xl font-semibold text-gray-900">LoanHook</span>
             </div>
 
-            {/* Desktop Navigation Links */}
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">
                 Features
@@ -137,7 +360,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               </a>
             </div>
 
-            {/* Auth Buttons */}
             <div className="flex items-center gap-3">
               <button
                 onClick={onNavigateToLogin}
@@ -156,26 +378,25 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         </div>
       </nav>
 
-      {/* SECTION 2 - Hero / Interactive Onboarding */}
       <section id="features" className="min-h-screen pt-20 bg-gradient-to-br from-gray-50 via-white to-blue-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Side - Feature Scroll Wheel */}
             <div className="order-2 lg:order-1">
               <div className="mb-12">
                 <h1 className="text-5xl lg:text-6xl text-gray-900 mb-6 font-bold">
-                  Smart borrowing<br />starts here
+                  Smart borrowing
+                  <br />
+                  starts here
                 </h1>
                 <p className="text-xl text-gray-600 mb-8">
                   Get loan-ready with personalized insights and tools designed for first-time borrowers
                 </p>
               </div>
 
-              {/* Feature List */}
               <div className="space-y-6 mb-12">
                 {features.map((feature, index) => {
                   const isActive = index === activeIndex;
-                  
+
                   return (
                     <button
                       key={feature.id}
@@ -184,18 +405,14 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
                     >
                       <h2
                         className={`text-2xl lg:text-3xl mb-2 transition-all duration-300 font-bold ${
-                          isActive 
-                            ? 'text-blue-600' 
-                            : 'text-gray-300 hover:text-gray-400'
+                          isActive ? "text-blue-600" : "text-gray-300 hover:text-gray-400"
                         }`}
                       >
                         {feature.headline}
                       </h2>
                       <p
                         className={`text-base lg:text-lg transition-all duration-300 ${
-                          isActive 
-                            ? 'text-gray-600' 
-                            : 'text-gray-300 hover:text-gray-400'
+                          isActive ? "text-gray-600" : "text-gray-300 hover:text-gray-400"
                         }`}
                       >
                         {feature.subtext}
@@ -205,22 +422,18 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
                 })}
               </div>
 
-              {/* Progress Indicators */}
               <div className="flex gap-2 mb-10">
                 {features.map((_, index) => (
                   <button
                     key={index}
                     onClick={() => setActiveIndex(index)}
                     className={`h-1.5 rounded-full transition-all duration-300 ${
-                      index === activeIndex
-                        ? 'w-12 bg-blue-600'
-                        : 'w-8 bg-gray-200 hover:bg-gray-300'
+                      index === activeIndex ? "w-12 bg-blue-600" : "w-8 bg-gray-200 hover:bg-gray-300"
                     }`}
                   />
                 ))}
               </div>
 
-              {/* CTA */}
               <Button
                 onClick={onGetStarted}
                 className="h-14 px-8 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white rounded-xl text-lg font-semibold shadow-lg shadow-blue-600/30"
@@ -231,34 +444,27 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               <p className="text-gray-500 mt-4">Free to use • No credit card required</p>
             </div>
 
-            {/* Right Side - iPhone Mockup */}
             <div className="order-1 lg:order-2 flex items-center justify-center">
               <div className="relative">
-                {/* iPhone Frame */}
                 <div className="relative w-80 h-[640px] bg-gray-900 rounded-[3rem] p-3 shadow-2xl">
-                  {/* Notch */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-7 bg-gray-900 rounded-b-3xl z-20"></div>
-                  
-                  {/* Screen */}
+
                   <div className="relative w-full h-full bg-white rounded-[2.5rem] overflow-hidden">
-                    {/* Screen Content with Transition */}
                     <div
                       key={activeIndex}
                       className="absolute inset-0 animate-fadeSlide"
                       style={{
-                        transform: 'scale(0.95)',
-                        transformOrigin: 'top center'
+                        transform: "scale(0.95)",
+                        transformOrigin: "top center"
                       }}
                     >
                       {renderScreen()}
                     </div>
                   </div>
-                  
-                  {/* Home Indicator */}
+
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full"></div>
                 </div>
 
-                {/* Shadow */}
                 <div className="absolute inset-0 bg-blue-600/10 rounded-[3rem] blur-3xl -z-10"></div>
               </div>
             </div>
@@ -266,12 +472,11 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         </div>
       </section>
 
-      {/* SECTION 3 - How It Works */}
       <section id="how-it-works" className="py-20 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl text-gray-900 mb-4 font-bold">
-              How BorrowSmart Works
+              How LoanHook Works
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Three simple steps to understand your borrowing power
@@ -279,7 +484,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
-            {/* Step 1 */}
             <div className="text-center group">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <Link2 className="w-10 h-10 text-blue-600" />
@@ -305,7 +509,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               </div>
             </div>
 
-            {/* Step 2 */}
             <div className="text-center group">
               <div className="w-20 h-20 bg-gradient-to-br from-teal-100 to-teal-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <BarChart3 className="w-10 h-10 text-teal-600" />
@@ -320,14 +523,7 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               <div className="bg-gray-50 rounded-2xl p-4 border-2 border-gray-100">
                 <div className="relative w-32 h-32 mx-auto">
                   <svg className="transform -rotate-90 w-32 h-32">
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="56"
-                      stroke="#e5e7eb"
-                      strokeWidth="8"
-                      fill="none"
-                    />
+                    <circle cx="64" cy="64" r="56" stroke="#e5e7eb" strokeWidth="8" fill="none" />
                     <circle
                       cx="64"
                       cy="64"
@@ -348,7 +544,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               </div>
             </div>
 
-            {/* Step 3 */}
             <div className="text-center group">
               <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                 <TrendingUp className="w-10 h-10 text-green-600" />
@@ -377,7 +572,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         </div>
       </section>
 
-      {/* SECTION 4 - Financial Readiness Dashboard Preview */}
       <section className="py-20 lg:py-32 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -390,7 +584,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Loan Readiness Score */}
             <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -400,14 +593,7 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               </div>
               <div className="relative w-28 h-28 mx-auto mb-4">
                 <svg className="transform -rotate-90 w-28 h-28">
-                  <circle
-                    cx="56"
-                    cy="56"
-                    r="48"
-                    stroke="#e5e7eb"
-                    strokeWidth="8"
-                    fill="none"
-                  />
+                  <circle cx="56" cy="56" r="48" stroke="#e5e7eb" strokeWidth="8" fill="none" />
                   <circle
                     cx="56"
                     cy="56"
@@ -428,7 +614,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               <p className="text-sm text-center text-gray-500">Good standing</p>
             </div>
 
-            {/* Debt-to-Income Ratio */}
             <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center">
@@ -443,7 +628,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               </div>
             </div>
 
-            {/* Savings Buffer */}
             <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -458,7 +642,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
               </div>
             </div>
 
-            {/* Financial Strengths */}
             <div className="bg-white rounded-3xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -485,7 +668,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         </div>
       </section>
 
-      {/* SECTION 5 - Loan Scenario Simulator Preview */}
       <section className="py-20 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -499,7 +681,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
 
           <div className="max-w-4xl mx-auto bg-gradient-to-br from-blue-50 to-teal-50 rounded-3xl p-8 lg:p-12 shadow-xl border border-gray-100">
             <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left - Controls */}
               <div className="space-y-8">
                 <div>
                   <div className="flex justify-between mb-3">
@@ -550,8 +731,8 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
                         onClick={() => setLoanTerm(term)}
                         className={`py-3 px-4 rounded-xl font-semibold transition-all ${
                           loanTerm === term
-                            ? 'bg-blue-600 text-white shadow-lg'
-                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
+                            ? "bg-blue-600 text-white shadow-lg"
+                            : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-200"
                         }`}
                       >
                         {term} mo
@@ -561,15 +742,14 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
                 </div>
               </div>
 
-              {/* Right - Results */}
               <div className="space-y-6">
                 <div className="bg-white rounded-2xl p-6 shadow-lg">
                   <p className="text-sm text-gray-500 mb-2">Monthly Payment</p>
-                  <p className="text-5xl font-bold text-gray-900 mb-4">
-                    ${calculateMonthlyPayment()}
-                  </p>
+                  <p className="text-5xl font-bold text-gray-900 mb-4">${calculateMonthlyPayment()}</p>
                   <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getAffordabilityRisk().bg}`}>
-                    <div className={`w-2 h-2 rounded-full ${getAffordabilityRisk().color.replace('text', 'bg')}`}></div>
+                    <div
+                      className={`w-2 h-2 rounded-full ${getAffordabilityRisk().color.replace("text", "bg")}`}
+                    ></div>
                     <span className={`text-sm font-semibold ${getAffordabilityRisk().color}`}>
                       {getAffordabilityRisk().level}
                     </span>
@@ -606,7 +786,6 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
         </div>
       </section>
 
-      {/* SECTION 6 - Call-To-Action */}
       <section id="about" className="py-20 lg:py-32 bg-gradient-to-br from-blue-600 to-teal-500">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <h2 className="text-4xl lg:text-6xl text-white mb-6 font-bold">
@@ -622,9 +801,7 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
             Get Started
             <ArrowRight className="ml-2 w-6 h-6" />
           </Button>
-          <p className="text-blue-100 mt-6">
-            Join thousands making smarter borrowing decisions
-          </p>
+          <p className="text-blue-100 mt-6">Join thousands making smarter borrowing decisions</p>
         </div>
       </section>
 
@@ -639,10 +816,11 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
             transform: scale(0.95) translateY(0);
           }
         }
+
         .animate-fadeSlide {
           animation: fadeSlide 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 24px;
@@ -652,7 +830,7 @@ export function LandingPage({ onGetStarted, onNavigateToLogin, onNavigateToSignu
           cursor: pointer;
           box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
         }
-        
+
         .slider::-moz-range-thumb {
           width: 24px;
           height: 24px;

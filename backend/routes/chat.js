@@ -10,7 +10,10 @@ router.post('/ask', async (req, res) => {
 
     if (!apiKey) return res.status(500).json({ text: "API Key missing." });
 
-    // The 2026 Model List (Matching your working simulator)
+    // Ensure we are pulling the correct readinessScore from userData
+    const income = userData?.income || 5200;
+    const readinessScore = userData?.readinessScore || 72; // Changed from .score to .readinessScore
+
     const modelsToTry = [
       "gemini-3-flash-preview", 
       "gemini-3.1-flash-lite-preview", 
@@ -30,14 +33,15 @@ router.post('/ask', async (req, res) => {
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are BorrowSmart AI. User: Income $${userData?.income || 5200}, Score: ${userData?.score || 78}. 
-              INSTRUCTIONS: Be extremely concise. Give a 2-3 sentence response max. Use bullet points only if necessary.
+              text: `You are BorrowSmart AI. 
+              CONTEXT: User has a Monthly Income of $${income} and a Loan Readiness Score of ${readinessScore}/100. 
+              INSTRUCTIONS: Be extremely concise. Give a 2-3 sentence response max. 
+              Always reference their specific score if they ask about their chances.
               Question: ${message}`
             }]
           }],
-          // FIX: Limits the length of the response to save quota and keep it short
           generationConfig: {
-            maxOutputTokens: 1000, 
+            maxOutputTokens: 500, // Shortened to keep it "concise" as per your instructions
             temperature: 0.7
           }
         })
@@ -45,13 +49,13 @@ router.post('/ask', async (req, res) => {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.candidates?.[0]?.content?.parts?.[0]?.text) {
         aiText = data.candidates[0].content.parts[0].text;
         console.log(`Success with ${modelName} ✅`);
         success = true;
         break; 
       } else {
-        console.warn(`${modelName} failed: ${data.error?.message}`);
+        console.warn(`${modelName} failed or returned empty: ${data.error?.message}`);
       }
     }
 
@@ -63,7 +67,7 @@ router.post('/ask', async (req, res) => {
 
   } catch (error) {
     console.error("DETAILED ERROR:", error.message);
-    res.status(500).json({ text: "Connection error. Check backend." });
+    res.status(500).json({ text: "Connection error. Check backend logs." });
   }
 });
 
